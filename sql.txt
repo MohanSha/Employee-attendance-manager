@@ -1,0 +1,10 @@
+select *, `Punch2_Time` - `Punch1_Time` from ac_data where (`Punch2_Time` - `Punch1_Time`)!=0
+select *, `Punch2_Time` - `Punch1_Time` from ac_data where 
+(`Punch2_Time` - `Punch1_Time`)!=0 AND
+`UserID`=02074
+
+21/08/2017
+
+SELECT ID FROM att_record WHERE ID LIKE '%01325' -dup
+
+SELECT DISTINCT ID FROM att_record WHERE ID LIKE '%01325'-unique
