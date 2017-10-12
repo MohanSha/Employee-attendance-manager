@@ -66,9 +66,9 @@ while erp_row is not None:
             att_LS = str(att_row[day-1][2])                
             erp_date = startdate+timedelta(days=day-1)
             erp_LS = str(erp_row[day+6])
-            #mob_date = startdate+timedelta(days=day-1)
-            mob_LS = str(mob_row[day+2])
-            #print mob_date.strftime('%Y-%m-%d')
+            mob_date = startdate+timedelta(days=day-1)
+            #mob_LS = str(mob_row[day+2])
+            print mob_date.strftime('%Y-%m-%d')
             #print "MOB_LS"+mob_LS
             
             if erp_LS != "":
