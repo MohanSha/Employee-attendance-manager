@@ -27,80 +27,86 @@ erp_read_cursor.execute(erp_query)
 erp_count = erp_read_cursor.rowcount
 
 
-
-#mob_read_cursor.execute(mob_query)
 #id=date=leavestatus=""
 #update_query = """UPDATE `"""+tbl4_name+"""` SET `ID` = """+id+""", `Date` = """+date+""", `Leave_status` = """+leavestatus+""" WHERE `ID` ="""+id+""" ;"""
 #print update_query
 
-# Create the INSERT INTO sql query
-insert_query = """INSERT INTO `att_stage01` (`ID`, `Date`, `Leave_status`) VALUES (%s, %s, %s)"""
-value_list = ""
-#insert_cursor.execute(insert_query, value_list)
-
 erp_row = erp_read_cursor.fetchone()
-#mob_row = mob_read_cursor.fetchone()
-#mob_read_cursor.execute(mob_query,erp_row[0])
+#insert_row = insert_cursor.fetchone()
+
 #exit()
 while erp_row is not None:
     att_read_cursor.execute(att_query,'%'+str(erp_row[0]))
     att_row = att_read_cursor.fetchall()
     att_count = att_read_cursor.rowcount
-    
-    #mob_row = mob_read_cursor.fetchone()
 
     mob_read_cursor.execute(mob_query,'%'+str(erp_row[0]))
-    mob_row = mob_read_cursor.fetchall()
+    mob_row = mob_read_cursor.fetchone()
     mob_count = mob_read_cursor.rowcount
-    #print mob_row[1][2]
+
     val_id = str(erp_row[0])
     print "erp ID = "+ val_id
     print "c = "+str(erp_read_cursor.rownumber)+" erp_count: "+str(erp_count) + " att_count: "+str(att_count) + " mob_count: "+str(mob_count)
    
-    print str(erp_row)
+    #print str(erp_row)
     
-    
+    val_LS_list=[];
     if att_count > 0:
         for day in range(1,31):
             att_date = datetime.strptime(str(att_row[day-1][1]), '%d/%m/%Y')
-            att_LS = str(att_row[day-1][2])                
+            att_LS = str(att_row[day-1][2])
             erp_date = startdate+timedelta(days=day-1)
             erp_LS = str(erp_row[day+6])
-            mob_date = startdate+timedelta(days=day-1)
-            #mob_LS = str(mob_row[day+2])
-            print mob_date.strftime('%Y-%m-%d')
+
+            #print "Mob_ID: "+mob_date.strftime('%Y-%m-%d')
             #print "MOB_LS"+mob_LS
             
-            if erp_LS != "":
+            if mob_count > 0:
+                mob_date = startdate+timedelta(days=day-1)
+                mob_LS = str(mob_row[day+2])
+                if mob_LS.upper() == "P":
+                    val_LS = mob_LS
+                    #break
+                print "\n\nMOB ID = "+mob_date.strftime('%Y-%m-%d') + " Day"+str(day)+" is "+mob_LS            
+            elif att_LS.upper() == "P":
+                val_LS = att_LS
+                #break            
+            elif erp_LS != "":
                 val_LS = erp_LS
-            else:
-                if att_LS.upper() == "P":
-                    val_LS = att_LS
-                else:
-                    if mob_count > 0:
-                        pass
+                #break
                         
             print "ERP ID = "+erp_date.strftime('%Y-%m-%d') + " Day"+str(day)+" is "+erp_LS
             print "ATT ID = "+att_date.strftime('%Y-%m-%d') + " Day"+str(day)+" is "+att_LS
             
+            val_LS_list.insert(day,val_LS);
+            print "VAL_LS = "+val_LS
+            print "Final VAL_LS: "+str(val_LS_list)
+
+            insert_query = """INSERT INTO `att_report` (`ID`, `Date`, `Leave_status`) VALUES ("""+val_id+""",'"""+erp_date.strftime('%d-%m-%Y')+"""','"""+val_LS+"""');"""   #(%s, %s, %s);"""
+            insert_cursor.execute(insert_query)
+            #value_list = "val_id,erp_date.strftime('%d-%m-%Y'),val_LS"
+            print insert_query
     if mob_count > 0:
-        print "MOB ID = "+str(mob_row)
+        #print "MOB ID = "+str(mob_row)
         if erp_read_cursor.rownumber > 5:
             exit()
         else:
             pass
     
-#print insert_query
+   
+    #insert_cursor.execute(insert_query, value_list)
+
     #update_cursor.execute(update_query)
     erp_row = erp_read_cursor.fetchone()
-
+    insert_row = insert_cursor.fetchone()
 # Close the cursor
 mob_read_cursor.close()
 att_read_cursor.close()
 erp_read_cursor.close()
+insert_cursor.close()
 
 # Commit the transaction
-#database.commit()
+database.commit()
 
 # Close the database connection
 database.close()
