@@ -56,7 +56,8 @@ while row is not None:
       ri_id = raw_ri_id.rjust(5,'0')
       print "RI -id "+ str(ri_id)
   else:
-      ri_id = row[0]
+      ri_id = row[0].rjust(5,'0')
+      #ri_id = row[0]
 
   #print "Name = "+row[1]
   #print "Date ="+row[2]
